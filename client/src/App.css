@@ -1,0 +1,22 @@
+body {
+  font-family: system-ui, sans-serif;
+  margin: 40px;
+  color: #1a1a1a;
+}
+
+.app {
+  max-width: 700px;
+}
+
+textarea {
+  width: 100%;
+  font-family: monospace;
+  font-size: 14px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.hint {
+  color: #666;
+  font-size: 13px;
+}
