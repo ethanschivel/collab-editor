@@ -1,22 +1,313 @@
-body {
-  font-family: system-ui, sans-serif;
-  margin: 40px;
-  color: #1a1a1a;
+:root {
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --text: #18181b;
+  --muted: #71717a;
+  --border: #e4e4e7;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --error: #dc2626;
+  --live: #16a34a;
+  --radius: 10px;
+  color-scheme: light;
 }
 
-.app {
-  max-width: 700px;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f12;
+    --surface: #18181b;
+    --text: #f4f4f5;
+    --muted: #a1a1aa;
+    --border: #2e2e33;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --error: #f87171;
+    --live: #4ade80;
+    color-scheme: dark;
+  }
 }
 
-textarea {
-  width: 100%;
-  font-family: monospace;
-  font-size: 14px;
-  padding: 12px;
+* {
   box-sizing: border-box;
 }
 
-.hint {
-  color: #666;
-  font-size: 13px;
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.center {
+  text-align: center;
+  margin-top: 80px;
+}
+
+.error {
+  color: var(--error);
+  margin: 0;
+}
+
+/* --- layout ---------------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.brand {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.topbar-user {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.page {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+/* --- forms ----------------------------------------------------------- */
+
+.auth-card {
+  max-width: 380px;
+  margin: 72px auto;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+input {
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.button {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.button:hover {
+  background: var(--accent-hover);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.link-button {
+  font: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.switch {
+  margin: 20px 0 0;
+  text-align: center;
+}
+
+/* --- room list ------------------------------------------------------- */
+
+.new-room {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0 12px;
+}
+
+.new-room input {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.room-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.room-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  color: var(--text);
+  flex-wrap: wrap;
+}
+
+.room-row:hover {
+  background: var(--bg);
+}
+
+.room-name {
+  font-weight: 600;
+}
+
+/* --- room / editor --------------------------------------------------- */
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.back {
+  font-size: 0.9rem;
+}
+
+.room-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.people {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.people li {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 2px solid var(--surface);
+  margin-left: -8px;
+}
+
+.status {
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.status-connected::before {
+  background: var(--live);
+}
+
+.editor {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  min-height: 60vh;
+}
+
+.editor .cm-editor {
+  min-height: 60vh;
+  font-size: 15px;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Match the One Dark editor theme's background. */
+  .editor {
+    background: #282c34;
+  }
+}
+
+.editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+.editor .cm-scroller {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+.editor.placeholder {
+  display: grid;
+  place-items: center;
 }

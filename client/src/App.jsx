@@ -1,71 +1,62 @@
-import { useEffect, useRef, useState } from 'react';
-import * as Y from 'yjs';
-import { WebsocketProvider } from 'y-websocket';
+import { lazy, Suspense } from 'react';
+import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useAuth } from './auth.jsx';
+import Login from './pages/Login.jsx';
+import Rooms from './pages/Rooms.jsx';
+// The editor (CodeMirror + syntax highlighting) is most of the bundle, so it
+// only loads when you open a document.
+const Room = lazy(() => import('./pages/Room.jsx'));
 
-const ROOM = 'demo-room';
-const WS_URL = 'ws://localhost:1234';
+function RequireLogin({ children }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  if (loading) return <p className="muted center">Loading…</p>;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  return children;
+}
 
-function App() {
-  const textareaRef = useRef(null);
-  const [status, setStatus] = useState('connecting');
-  const [peers, setPeers] = useState(1);
-
-  useEffect(() => {
-    const ydoc = new Y.Doc();
-    const provider = new WebsocketProvider(WS_URL, ROOM, ydoc);
-    const ytext = ydoc.getText('content');
-    const textarea = textareaRef.current;
-
-    provider.on('status', (event) => setStatus(event.status));
-    provider.awareness.on('change', () => {
-      setPeers(provider.awareness.getStates().size);
-    });
-
-    // Seed the textarea with whatever is already in the shared doc.
-    textarea.value = ytext.toString();
-
-    // NOTE: this is a deliberately naive binding — on every keystroke we
-    // wipe and rewrite the whole Y.Text. It's enough to prove the sync path
-    // works end to end, but it will fight cursor position with two people
-    // typing at once. A real implementation should bind character-level
-    // deltas instead (see y-textarea, or a ProseMirror/CodeMirror binding
-    // for a richer editor). Upgrading this is a good "phase 2" milestone.
-    const updateFromYjs = () => {
-      if (textarea.value !== ytext.toString()) {
-        textarea.value = ytext.toString();
-      }
-    };
-    ytext.observe(updateFromYjs);
-
-    const handleInput = () => {
-      ydoc.transact(() => {
-        ytext.delete(0, ytext.length);
-        ytext.insert(0, textarea.value);
-      });
-    };
-    textarea.addEventListener('input', handleInput);
-
-    return () => {
-      textarea.removeEventListener('input', handleInput);
-      ytext.unobserve(updateFromYjs);
-      provider.destroy();
-      ydoc.destroy();
-    };
-  }, []);
+export default function App() {
+  const { user, logout } = useAuth();
 
   return (
-    <div className="app">
-      <h1>Collab editor</h1>
-      <p>
-        Room: <code>{ROOM}</code> · Status: <code>{status}</code> · Connected clients:{' '}
-        <code>{peers}</code>
-      </p>
-      <textarea ref={textareaRef} rows={20} cols={80} />
-      <p className="hint">
-        Open this page in two browser tabs and type in both — edits should sync live.
-      </p>
+    <div className="shell">
+      <header className="topbar">
+        <Link to="/" className="brand">
+          Collab Editor
+        </Link>
+        {user && (
+          <div className="topbar-user">
+            <span className="muted">{user.name}</span>
+            <button className="link-button" onClick={logout}>
+              Log out
+            </button>
+          </div>
+        )}
+      </header>
+      <main>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <RequireLogin>
+                <Rooms />
+              </RequireLogin>
+            }
+          />
+          <Route
+            path="/r/:slug"
+            element={
+              <RequireLogin>
+                <Suspense fallback={<p className="muted center">Loading…</p>}>
+                  <Room />
+                </Suspense>
+              </RequireLogin>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
     </div>
   );
 }
-
-export default App;
