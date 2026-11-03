@@ -1,69 +1,69 @@
-# Collab editor (starter)
+# Collab Editor
 
-A minimal real-time collaborative text editor: React + Yjs on the client,
-Express + y-websocket on the server. This is week-1 scaffolding — it proves
-the sync path works end to end. Persistence, auth, and rooms are stubbed out
-for you to build next.
+A real-time collaborative text editor. Open the same document in two browser tabs (or on two computers), and edits show up in both instantly.
 
-## Project structure
+Built with **React** and **Yjs** (a CRDT library) on the client, and **Node.js / Express** with a WebSocket sync server on the backend.
 
+> **Status:** in progress. Real-time sync works end to end. Accounts, saved documents and rooms are next (see the roadmap below).
+
+## How it works
+
+```text
+ Browser A ──┐                         ┌── Browser B
+ React + Yjs │   WebSocket (y-websocket) │ React + Yjs
+             └──────►  Node server  ◄────┘
+                    Express REST API
+                    + Yjs sync server
 ```
-collab-editor/
-  server/   Express REST API + WebSocket/Yjs sync server
-  client/   React app (Vite)
-```
+
+Each client holds a copy of the document as a Yjs CRDT. Edits are sent over a WebSocket and merged automatically, so two people can type at the same time without overwriting each other and without a central lock.
+
+## Tech stack
+
+| Part | Tech |
+|---|---|
+| Client | React 18, Vite, Yjs, y-websocket |
+| Server | Node.js, Express, ws, Yjs |
+| Planned | PostgreSQL for users and saved documents |
 
 ## Running it locally
 
-Open two terminals in VS Code (View → Terminal, then split it, or just open
-two integrated terminal tabs).
+Requires Node.js 18 or newer. Use two terminals.
 
-**Terminal 1 — server:**
+**Server:**
+
 ```bash
 cd server
 npm install
 npm run dev
 ```
-You should see `REST API + WebSocket sync listening on http://localhost:1234`.
 
-**Terminal 2 — client:**
+The server listens on `http://localhost:1234`.
+
+**Client:**
+
 ```bash
 cd client
 npm install
 npm run dev
 ```
-Vite will print a local URL, typically `http://localhost:5173`.
 
-Open that URL in **two separate browser tabs**. Type in one — it should
-appear in the other within a second. That's the whole demo.
+Open the URL Vite prints (usually `http://localhost:5173`) in two tabs and start typing in one.
 
-## What's real vs stubbed
+## Project structure
 
-- **Real:** the WebSocket + Yjs sync path. This is the actual hard part of
-  the project and it's fully wired up.
-- **Stubbed:** `/api/login` and `/api/rooms` in `server/index.js` return fake
-  data. There's no Postgres connection yet even though `pg` is installed.
-- **Naive on purpose:** the textarea binding in `client/src/App.jsx` rewrites
-  the whole document on every keystroke instead of sending precise deltas.
-  It works for a demo with light typing but will feel janky with two people
-  typing in the same spot at once. Upgrading this to a proper binding
-  (`y-textarea`, or a CodeMirror/ProseMirror + Yjs binding) is a great next
-  milestone — and a good story for an interview about naive-vs-production
-  approaches to the same problem.
+```text
+collab-editor/
+├── client/   React app (Vite)
+└── server/   Express REST API + WebSocket sync server
+```
 
-## Suggested next steps (roughly in order)
+## Roadmap
 
-1. Get the demo above running and confirm two tabs sync.
-2. Swap the naive textarea binding for `y-textarea` or a CodeMirror binding.
-3. Add real auth: hash passwords, sign real JWTs, store users in Postgres.
-4. Add real rooms: let users create/join named documents, store metadata in
-   Postgres, and load/save Yjs document snapshots so content persists across
-   server restarts (see `y-websocket`'s persistence docs for a Postgres-
-   backed `y-leveldb`/custom persistence adapter).
-5. Add presence: show other users' cursors using `provider.awareness` (the
-   awareness API is already connected — see the `peers` count in `App.jsx`
-   for a starting point).
-6. Write a few unit tests around the Yjs document logic, then set up a
-   GitHub Actions workflow to run them on push.
-7. Deploy: client to Vercel/Netlify, server to Railway/Fly.io with a managed
-   Postgres instance.
+- [x] Real-time sync between clients over WebSockets
+- [ ] Character-level editor binding (CodeMirror + Yjs) instead of whole-text updates
+- [ ] User accounts: hashed passwords and JWT login, stored in PostgreSQL
+- [ ] Named rooms, with documents that persist after a server restart
+- [ ] Live cursors and presence for other users
+- [ ] Tests and GitHub Actions CI
+- [ ] Deploy the client and server
