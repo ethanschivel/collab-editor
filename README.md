@@ -4,6 +4,8 @@
 
 A real-time collaborative text editor. Create a document, share the link, and everyone in it can type at the same time. Each person's cursor shows up live, and documents are saved automatically.
 
+**Live demo: [collab-editor-xrgv.onrender.com](https://collab-editor-xrgv.onrender.com)** (free hosting, so the first visit can take up to a minute to wake the server up)
+
 Built with **React**, **CodeMirror 6** and **Yjs** (a CRDT library) on the client, and **Node.js / Express**, **WebSockets** and **PostgreSQL** on the server.
 
 ## Features
