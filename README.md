@@ -100,6 +100,10 @@ Set `TEST_DATABASE_URL` if your Postgres isn't at `postgres://postgres@localhost
 
 In production one Node server hosts both the API and the built React app, so it deploys as a single service with a Postgres database (for example on Railway, Render or Fly.io).
 
+**Render (one click):** the repo includes a [`render.yaml`](render.yaml) Blueprint. In Render, choose **New → Blueprint**, pick this repo, and it creates the web service and database and generates `JWT_SECRET` for you.
+
+**Anywhere else:**
+
 ```bash
 npm run build   # installs everything and builds the client
 npm start       # starts the server, which also serves client/dist

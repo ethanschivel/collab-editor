@@ -1,0 +1,25 @@
+# Render Blueprint: one web service (API + WebSockets + built React app)
+# and one Postgres database. In Render: New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: collab-editor
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: collab-editor-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+databases:
+  - name: collab-editor-db
+    plan: free
+    databaseName: collab_editor
+    user: collab_editor
