@@ -1,4 +1,5 @@
 import http from 'http';
+import path from 'path';
 import crypto from 'crypto';
 import express from 'express';
 import cors from 'cors';
@@ -32,7 +33,7 @@ const wrap = (fn) => (req, res, next) => fn(req, res, next).catch(next);
  * Builds the HTTP + WebSocket server. Nothing is listening until you call
  * server.listen(), which keeps this easy to start on a random port in tests.
  */
-export function createServer({ pool, jwtSecret, saveDelayMs }) {
+export function createServer({ pool, jwtSecret, saveDelayMs, clientDir }) {
   const app = express();
   app.use(cors());
   app.use(express.json());
@@ -97,6 +98,13 @@ export function createServer({ pool, jwtSecret, saveDelayMs }) {
     if (!room) return res.status(404).json({ error: 'Room not found' });
     res.json({ room });
   }));
+
+  // In production, serve the built React app from the same server, and send
+  // every non-API URL to index.html so client-side routes like /r/abc work.
+  if (clientDir) {
+    app.use(express.static(clientDir));
+    app.get(/^(?!\/api\/).*/, (req, res) => res.sendFile(path.join(clientDir, 'index.html')));
+  }
 
   app.use((err, req, res, next) => {
     console.error(err);

@@ -1,3 +1,5 @@
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { createPool, migrate } from './src/db.js';
 import { createServer } from './src/app.js';
@@ -15,7 +17,11 @@ if (!DATABASE_URL || !JWT_SECRET) {
 const pool = createPool(DATABASE_URL);
 await migrate(pool);
 
-const { server, close } = createServer({ pool, jwtSecret: JWT_SECRET });
+// If the client has been built (npm run build in client/), serve it too.
+const builtClient = fileURLToPath(new URL('../client/dist', import.meta.url));
+const clientDir = fs.existsSync(builtClient) ? builtClient : undefined;
+
+const { server, close } = createServer({ pool, jwtSecret: JWT_SECRET, clientDir });
 
 server.listen(PORT, () => {
   console.log(`API + real-time sync listening on http://localhost:${PORT}`);
